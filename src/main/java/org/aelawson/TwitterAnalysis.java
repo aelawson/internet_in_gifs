@@ -18,6 +18,12 @@
 
 package org.aelawson;
 
+import java.io.File;
+
+import org.apache.commons.configuration2.builder.fluent.Configurations;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -33,6 +39,18 @@ import org.aelawson.util.TokenizeTweet;
 public class TwitterAnalysis {
 
 	public static void main(String[] args) throws Exception {
+		Configurations configs = new Configurations();
+
+		try {
+		    PropertiesConfiguration twitterConfig = configs.properties(
+						new File("src/main/resources/twitter.properties")
+		    );
+		}
+		catch (ConfigurationException e) {
+		    System.out.println("Error loading configuration...");
+		    System.exit(1);
+		}
+
 		final ParameterTool params = ParameterTool.fromArgs(args);
 		final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 		env.getConfig().setGlobalJobParameters(params);
