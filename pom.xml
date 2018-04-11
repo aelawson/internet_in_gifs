@@ -104,6 +104,19 @@ under the License.
 			<version>1.2.17</version>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+		    <groupId>edu.stanford.nlp</groupId>
+		    <artifactId>stanford-corenlp</artifactId>
+		    <version>3.9.1</version>
+		    <scope>compile</scope>
+		</dependency>
+		<dependency>
+		    <groupId>edu.stanford.nlp</groupId>
+		    <artifactId>stanford-corenlp</artifactId>
+		    <version>3.9.1</version>
+		    <classifier>models</classifier>
+		    <scope>compile</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -154,7 +167,7 @@ under the License.
 							</filters>
 							<transformers>
 								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>org.aelawson.TwitterAnalysis</mainClass>
+									<mainClass>org.aelawson.InternetInGifs</mainClass>
 								</transformer>
 							</transformers>
 						</configuration>

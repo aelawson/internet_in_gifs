@@ -6,7 +6,14 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.util.Collector;
 
-public class TokenizeTweet implements FlatMapFunction<String, Tuple2<String, Integer>> {
+import edu.stanford.nlp.coref.data.CorefChain;
+import edu.stanford.nlp.ling.*;
+import edu.stanford.nlp.ie.util.*;
+import edu.stanford.nlp.pipeline.*;
+import edu.stanford.nlp.semgraph.*;
+import edu.stanford.nlp.trees.*;
+
+public class TweetAnalyzer implements FlatMapFunction<String, Tuple2<String, Integer>> {
   public static final long serialVersionUID = 1L;
   private transient ObjectMapper jsonParser;
 

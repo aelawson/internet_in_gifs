@@ -38,14 +38,14 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.util.Collector;
 
-import org.aelawson.util.TokenizeTweet;
+import org.aelawson.util.TweetAnalyzer;
 
-public class TwitterAnalysis {
+public class InternetInGifs {
 
 	public static void main(String[] args) throws Exception {
 		PropertiesConfiguration twitterConfig = null;
 		final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-		final Logger LOG = LoggerFactory.getLogger(TwitterAnalysis.class);
+		final Logger LOG = LoggerFactory.getLogger(InternetInGifs.class);
 
 		Configurations configs = new Configurations();
 
@@ -71,7 +71,7 @@ public class TwitterAnalysis {
 		DataStream<String> streamSource = env.addSource(twitterSource);
 
 		DataStream<Tuple2<String, Integer>> tweets = streamSource
-				.flatMap(new TokenizeTweet())
+				.flatMap(new TweetAnalyzer())
 				.keyBy(0)
 				.sum(1);
 
