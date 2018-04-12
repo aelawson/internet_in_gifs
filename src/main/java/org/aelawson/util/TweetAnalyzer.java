@@ -1,35 +1,34 @@
 package org.aelawson.util;
 
+import java.util.List;
+
+import org.aelawson.util.NLPParser;
+
+import edu.stanford.nlp.ling.CoreLabel;
+
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.util.Collector;
 
-import edu.stanford.nlp.coref.data.CorefChain;
-import edu.stanford.nlp.ling.*;
-import edu.stanford.nlp.ie.util.*;
-import edu.stanford.nlp.pipeline.*;
-import edu.stanford.nlp.semgraph.*;
-import edu.stanford.nlp.trees.*;
-
 public class TweetAnalyzer implements FlatMapFunction<String, Tuple2<String, Integer>> {
   public static final long serialVersionUID = 1L;
   private transient ObjectMapper jsonParser;
+  private transient NLPParser nlpParser;
 
   @Override
   public void flatMap(String value, Collector<Tuple2<String, Integer>> out) throws Exception {
-    if (jsonParser == null) {
-      jsonParser = new ObjectMapper();
-    }
+    jsonParser = jsonParser == null ? new ObjectMapper() : jsonParser;
+    nlpParser = nlpParser == null ? new NLPParser() : nlpParser;
 
-    JsonNode jsonNode = jsonParser.readValue(value, JsonNode.class);
+    JsonNode jsonNode = this.jsonParser.readValue(value, JsonNode.class);
+
     if (jsonNode.has("text")) {
-      String[] tokens = jsonNode.get("text").asText().split("\\s");
-      for (String token : tokens) {
-        if (!token.equals("")) {
-          out.collect(new Tuple2<>(token, 1));
-        }
+      String text = jsonNode.get("text").asText();
+      List<CoreLabel> tokens = this.nlpParser.parse(text);
+      for (CoreLabel token : tokens) {
+        out.collect(new Tuple2<>(token.value(), 1));
       }
     }
   }
