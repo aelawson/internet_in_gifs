@@ -20,7 +20,7 @@ public class NLPParser {
 
   public NLPParser() {
     Properties props = new Properties();
-    props.setProperty("annotators", "tokenize,ssplit,pos,parse");
+    props.setProperty("annotators", "tokenize,ssplit,pos,lemma,parse");
     props.setProperty("coref.algorithm", "neural");
 
     this.props = props;
