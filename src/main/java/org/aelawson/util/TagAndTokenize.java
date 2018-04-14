@@ -23,10 +23,10 @@ public class TagAndTokenize implements FlatMapFunction<String, TokenTag> {
     jsonParser = jsonParser == null ? new ObjectMapper() : jsonParser;
     nlpParser = nlpParser == null ? new NLPParser() : nlpParser;
 
-    JsonNode jsonNode = this.jsonParser.readValue(value, JsonNode.class);
+    JsonNode tweet = this.jsonParser.readValue(value, JsonNode.class);
 
-    if (jsonNode.has("text")) {
-      String text = jsonNode.get("text").asText();
+    if (tweet.has("text") && this.isEnglish(tweet)) {
+      String text = tweet.get("text").asText();
       List<CoreLabel> tokens = this.nlpParser.tokenize(text);
       for (CoreLabel token : tokens) {
         String posTag = token.tag();
@@ -34,5 +34,11 @@ public class TagAndTokenize implements FlatMapFunction<String, TokenTag> {
         out.collect(new TokenTag(posTag, tokenValue));
       }
     }
+  }
+
+  private boolean isEnglish(JsonNode tweet) {
+    return tweet.has("user")
+      && tweet.get("user").has("lang")
+      && tweet.get("user").get("lang").asText().equals("en");
   }
 }
