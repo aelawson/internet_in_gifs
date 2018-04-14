@@ -20,7 +20,7 @@ public class NLPParser {
 
   public NLPParser() {
     Properties props = new Properties();
-    props.setProperty("annotators", "tokenize,ssplit,pos,parse,sentiment");
+    props.setProperty("annotators", "tokenize,ssplit,pos,parse");
     props.setProperty("coref.algorithm", "neural");
 
     this.props = props;
@@ -30,13 +30,10 @@ public class NLPParser {
     this.logger.info("Instantiated NLPParser!");
   }
 
-  public List<CoreLabel> parse(String text) {
+  public List<CoreLabel> tokenize(String text) {
     CoreDocument document = new CoreDocument(text);
     this.pipeline.annotate(document);
 
-    CoreSentence sentence = document.sentences().get(0);
-    List<CoreLabel> tokens = document.tokens();
-
-    return tokens;
+    return document.tokens();
   }
 }
