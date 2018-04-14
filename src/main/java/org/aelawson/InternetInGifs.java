@@ -44,6 +44,7 @@ import org.apache.flink.api.common.functions.FoldFunction;
 import org.aelawson.util.TokenTag;
 import org.aelawson.util.KeyByTag;
 import org.aelawson.util.TagAndTokenize;
+import org.aelawson.util.FilterTokenTags;
 import org.aelawson.util.FoldTokenTags;
 
 public class InternetInGifs {
@@ -77,7 +78,8 @@ public class InternetInGifs {
     DataStream<String> streamSource = env.addSource(twitterSource);
 
     DataStream<TokenTag> tokenTags = streamSource.flatMap(new TagAndTokenize());
-    KeyedStream<TokenTag, String> keyedTokenTags = tokenTags.keyBy(new KeyByTag());
+    KeyedStream<TokenTag, String> keyedTokenTags = tokenTags.filter(new FilterTokenTags())
+        .keyBy(new KeyByTag());
 
     DataStream<Tuple2<String, String>> result = keyedTokenTags.timeWindow(Time.seconds(10))
         .fold(new Tuple2<String, String>("", ""), new FoldTokenTags());
