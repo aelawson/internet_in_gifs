@@ -1,8 +1,7 @@
-package org.aelawson.util;
+package org.aelawson.util.functions;
 
 import java.util.List;
 
-import org.aelawson.util.TokenTag;
 import org.aelawson.util.NLPParser;
 
 import edu.stanford.nlp.ling.CoreLabel;

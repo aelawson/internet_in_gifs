@@ -1,4 +1,4 @@
-package org.aelawson.util;
+package org.aelawson.util.functions;
 
 import org.apache.flink.api.java.functions.KeySelector;
 

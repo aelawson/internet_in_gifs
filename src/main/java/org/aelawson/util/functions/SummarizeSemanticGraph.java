@@ -1,4 +1,4 @@
-package org.aelawson.util;
+package org.aelawson.util.functions;
 
 import java.util.ArrayList;
 

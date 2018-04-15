@@ -41,53 +41,54 @@ import org.apache.flink.util.Collector;
 
 import edu.stanford.nlp.semgraph.SemanticGraph;
 
-import org.aelawson.util.TokenTag;
 import org.aelawson.util.SemanticSummary;
-import org.aelawson.util.KeyBySubject;
-import org.aelawson.util.ParseTweet;
-import org.aelawson.util.FilterTokenTags;
-import org.aelawson.util.FoldTokenTags;
-import org.aelawson.util.SummarizeSemanticGraph;
+import org.aelawson.util.functions.KeyBySubject;
+import org.aelawson.util.functions.ParseTweet;
+import org.aelawson.util.functions.SummarizeSemanticGraph;
 
 public class InternetInGifs {
+    private static final Logger LOG = LoggerFactory.getLogger(InternetInGifs.class);
 
-  public static void main(String[] args) throws Exception {
-    PropertiesConfiguration twitterConfig = null;
-    final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-    final Logger LOG = LoggerFactory.getLogger(InternetInGifs.class);
+    public static void main(String[] args) throws Exception {
+        final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-    Configurations configs = new Configurations();
+        TwitterSource twitterSource = instantiateTwitterSource();
 
-    try {
-        twitterConfig = configs.properties(
-            new File("src/main/resources/twitter.properties")
-        );
+        LOG.info("Executing Twitter analysis with example data.");
+        DataStream<String> streamSource = env.addSource(twitterSource);
+
+        DataStream<SemanticGraph> semanticGraphs = streamSource.flatMap(new ParseTweet());
+        DataStream<SemanticSummary> graphSummaries = semanticGraphs.flatMap(new SummarizeSemanticGraph());
+        // KeyedStream<SemanticSummary, String> keyedSummaries = graphSummaries.keyBy(new KeyBySubject());
+
+        // DataStream<Tuple2<String, String>> result = keyedTokenTags.timeWindow(Time.seconds(10))
+        //     .fold(new Tuple2<String, String>("", ""), new FoldTokenTags());
+
+        graphSummaries.print();
+
+        env.execute("Simple Twitter analysis.");
     }
-    catch (ConfigurationException e) {
-        LOG.info("Error loading configuration...");
-        System.exit(1);
+
+    private static TwitterSource instantiateTwitterSource() {
+        PropertiesConfiguration twitterConfig = null;
+        Configurations configs = new Configurations();
+
+        try {
+            twitterConfig = configs.properties(
+                new File("src/main/resources/twitter.properties")
+            );
+        }
+        catch (ConfigurationException e) {
+            LOG.info("Error loading configuration...");
+            System.exit(1);
+        }
+
+        Properties twitterProps = new Properties();
+        twitterProps.setProperty(TwitterSource.CONSUMER_KEY, twitterConfig.getString("key"));
+        twitterProps.setProperty(TwitterSource.CONSUMER_SECRET, twitterConfig.getString("secret"));
+        twitterProps.setProperty(TwitterSource.TOKEN, twitterConfig.getString("token"));
+        twitterProps.setProperty(TwitterSource.TOKEN_SECRET, twitterConfig.getString("token_secret"));
+
+        return new TwitterSource(twitterProps);
     }
-
-    Properties twitterProps = new Properties();
-    twitterProps.setProperty(TwitterSource.CONSUMER_KEY, twitterConfig.getString("key"));
-    twitterProps.setProperty(TwitterSource.CONSUMER_SECRET, twitterConfig.getString("secret"));
-    twitterProps.setProperty(TwitterSource.TOKEN, twitterConfig.getString("token"));
-    twitterProps.setProperty(TwitterSource.TOKEN_SECRET, twitterConfig.getString("token_secret"));
-
-    TwitterSource twitterSource = new TwitterSource(twitterProps);
-
-    LOG.info("Executing Twitter analysis with example data.");
-    DataStream<String> streamSource = env.addSource(twitterSource);
-
-    DataStream<SemanticGraph> semanticGraphs = streamSource.flatMap(new ParseTweet());
-    DataStream<SemanticSummary> graphSummaries = semanticGraphs.flatMap(new SummarizeSemanticGraph());
-    // KeyedStream<SemanticSummary, String> keyedSummaries = graphSummaries.keyBy(new KeyBySubject());
-
-    // DataStream<Tuple2<String, String>> result = keyedTokenTags.timeWindow(Time.seconds(10))
-    //     .fold(new Tuple2<String, String>("", ""), new FoldTokenTags());
-
-    graphSummaries.print();
-
-    env.execute("Simple Twitter analysis.");
-  }
 }
