@@ -4,10 +4,13 @@ import java.util.List;
 
 public class SemanticSummary {
     public String subject;
-    public List<String> dependencies;
 
-    public SemanticSummary(String subject, List<String> dependencies) {
+    public SemanticSummary(String subject) {
         this.subject = subject;
-        this.dependencies = dependencies;
+    }
+
+    @Override
+    public String toString() {
+        return this.subject;
     }
 }

@@ -14,9 +14,9 @@ public class SummarizeSemanticGraph implements FlatMapFunction<SemanticGraph, Se
 
     @Override
     public void flatMap(SemanticGraph value, Collector<SemanticSummary> out) {
-        ArrayList<String> dependencies = new ArrayList<String>();
-        dependencies.add("dependency 1");
-
-        out.collect(new SemanticSummary("subject", dependencies));
+        value.edgeListSorted().stream()
+            .filter(e -> "nsubj".equals(e.getRelation().getShortName()))
+            .map(e -> e.getTarget().toString())
+            .forEach(s -> out.collect(new SemanticSummary(s)));
     }
-}
+};
