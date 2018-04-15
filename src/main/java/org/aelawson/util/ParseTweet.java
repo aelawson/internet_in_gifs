@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.aelawson.util.TokenTag;
 import org.aelawson.util.NLPParser;
-import org.aelawson.util.ParsedTweet;
 
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.semgraph.SemanticGraph;
