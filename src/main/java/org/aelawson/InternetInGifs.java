@@ -34,18 +34,20 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.util.Collector;
-import org.apache.flink.api.common.functions.FoldFunction;
+
+import edu.stanford.nlp.semgraph.SemanticGraph;
 
 import org.aelawson.util.TokenTag;
-import org.aelawson.util.KeyByTag;
-import org.aelawson.util.TagAndTokenize;
+import org.aelawson.util.SemanticSummary;
+import org.aelawson.util.KeyBySubject;
+import org.aelawson.util.ParseTweet;
 import org.aelawson.util.FilterTokenTags;
 import org.aelawson.util.FoldTokenTags;
+import org.aelawson.util.SummarizeSemanticGraph;
 
 public class InternetInGifs {
 
@@ -77,14 +79,14 @@ public class InternetInGifs {
     LOG.info("Executing Twitter analysis with example data.");
     DataStream<String> streamSource = env.addSource(twitterSource);
 
-    DataStream<TokenTag> tokenTags = streamSource.flatMap(new TagAndTokenize());
-    KeyedStream<TokenTag, String> keyedTokenTags = tokenTags.filter(new FilterTokenTags())
-        .keyBy(new KeyByTag());
+    DataStream<SemanticGraph> semanticGraphs = streamSource.flatMap(new ParseTweet());
+    DataStream<SemanticSummary> graphSummaries = semanticGraphs.flatMap(new SummarizeSemanticGraph());
+    // KeyedStream<SemanticSummary, String> keyedSummaries = graphSummaries.keyBy(new KeyBySubject());
 
-    DataStream<Tuple2<String, String>> result = keyedTokenTags.timeWindow(Time.seconds(10))
-        .fold(new Tuple2<String, String>("", ""), new FoldTokenTags());
+    // DataStream<Tuple2<String, String>> result = keyedTokenTags.timeWindow(Time.seconds(10))
+    //     .fold(new Tuple2<String, String>("", ""), new FoldTokenTags());
 
-    result.print();
+    graphSummaries.print();
 
     env.execute("Simple Twitter analysis.");
   }
