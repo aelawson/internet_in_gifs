@@ -107,7 +107,7 @@ under the License.
 		<dependency>
 		    <groupId>edu.stanford.nlp</groupId>
 		    <artifactId>stanford-corenlp</artifactId>
-		    <version>3.9.1</version>
+		    <version>4.4.0</version>
 		    <scope>compile</scope>
 		</dependency>
 		<dependency>
